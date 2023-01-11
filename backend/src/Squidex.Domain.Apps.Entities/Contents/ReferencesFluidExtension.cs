@@ -12,7 +12,6 @@ using Fluid.Values;
 using Microsoft.Extensions.DependencyInjection;
 using Squidex.Domain.Apps.Core.Rules.EnrichedEvents;
 using Squidex.Domain.Apps.Core.Templates;
-using Squidex.Domain.Apps.Entities.Contents.Queries.Steps;
 using Squidex.Infrastructure;
 using static Parlot.Fluent.Parsers;
 
@@ -34,7 +33,7 @@ public sealed class ReferencesFluidExtension : IFluidExtension
         AddReferenceFilter(options);
 
         parser.RegisterParserTag("reference",
-            parser.PrimaryParser.AndSkip(ZeroOrOne(parser.CommaParser)).And(parser.PrimaryParser), 
+            parser.PrimaryParser.AndSkip(ZeroOrOne(parser.CommaParser)).And(parser.PrimaryParser),
             ResolveReference);
     }
 

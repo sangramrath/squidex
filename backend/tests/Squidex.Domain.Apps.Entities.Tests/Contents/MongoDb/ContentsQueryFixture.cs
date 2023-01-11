@@ -7,6 +7,7 @@
 
 using System.Globalization;
 using LoremNET;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -75,18 +76,16 @@ public abstract class ContentsQueryFixtureBase : IAsyncLifetime
         mongoClient = new MongoClient(TestConfig.Configuration["mongodb:configuration"]);
         mongoDatabase = mongoClient.GetDatabase(TestConfig.Configuration["mongodb:database"]);
 
-        var appProvider = CreateAppProvider();
+        var services =
+            new ServiceCollection()
+                .AddSingleton(Options.Create(new ContentOptions { OptimizeForSelfHosting = dedicatedCollections }))
+                .AddSingleton(CreateAppProvider())
+                .AddSingleton(mongoClient)
+                .AddSingleton(mongoDatabase)
+                .AddLogging()
+                .BuildServiceProvider();
 
-        var options = Options.Create(new ContentOptions
-        {
-            OptimizeForSelfHosting = dedicatedCollections
-        });
-
-        ContentRepository =
-            new MongoContentRepository(
-                mongoDatabase,
-                appProvider,
-                options);
+        ContentRepository = services.GetRequiredService<MongoContentRepository>();
     }
 
     public Task DisposeAsync()
